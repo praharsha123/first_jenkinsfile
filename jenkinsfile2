@@ -1,0 +1,22 @@
+pipeline{
+    agent any
+
+    stages{
+        stage('checkout'){
+            steps{
+                git(
+                     credentialsId: 'Harsha-git',
+                      poll: false,
+                       url: 'https://github.com/praharsha123/first_jenkinsfile.git'
+                )
+            }
+
+        }
+        stage('build'){
+            steps{
+                sh 'mvn clean package'
+            }
+
+} 
+   }
+}
