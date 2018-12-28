@@ -1,0 +1,65 @@
+pipeline {
+ agent { label ' nfv-orch-build4   ' }
+environment {
+        BUILD_BIN=/auto/nfv_orch/images/cdg
+        DIR=${BUILD_NUMBER}-${JOB_BASE_NAME}-${BUILD_TIMESTAMP}
+        CDG_BIN=${BUILD_BIN}/${JOB_BASE_NAME}/${DIR}
+}
+parameters{
+booleanParam(defaultValue: false, description: '', name: 'PACKER_ON_ERROR_ABORT')
+choice(choices: ['dev', 'release'], description: '', name: 'BUILD_TYPE')])])
+}
+
+ options {
+   buildDiscarder(
+       logRotator(
+           artifactDaysToKeepStr: '10',
+           artifactNumToKeepStr: '1',
+           daysToKeepStr: '10',
+           numToKeepStr: '20'
+       )
+   )
+   skipDefaultCheckout()
+   timeout(time: 1, unit: 'HOURS')
+ }
+stage('checkout'){
+    steps{
+        checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'pvagu-gerrit-ssh', url: 'ssh://pvagu@nfv-codesurf.cisco.com:29418/cdg']]])
+
+    }
+}
+stage('build'){
+    steps{
+    sh '''
+    wget -d --timeout=10 --proxy=off https://engci-maven-master.cisco.com/artifactory/simple/vts-snapshot/build/cdgdev_gerrit_nightly.zip
+    unzip cdgdev_gerrit_nightly.zip
+    chmod +x *.sh
+    mkdir -p $WORKSPACE/packaging/packer/
+    ./version.sh > $WORKSPACE/packaging/packer/reldata.txt
+    . $WORKSPACE/packaging/jenkins/build-functions.sh
+    echo "CSG_PATH=${CSG_PATH}" >> $WORKSPACE/packaging/packer/reldata.txt
+    cat $WORKSPACE/packaging/packer/reldata.txt
+    }
+}
+stage('packer-build'){
+    environment{
+ PACKER_LOG=1
+ PACKER_LOG_PATH=/tmp/packer_vmdk_$BUILD_ID_$BUILD_NUMBER.log
+ 
+}
+
+steps{
+sh '''
+mkdir -p $WORKSPACE/bin
+cd $WORKSPACE/bin
+wget -d --timeout=10 --proxy=off http://engci-maven-master.cisco.com/artifactory/simple/vts-thirdparty/packer/packer_1.2.5_linux_amd64.zip
+unzip packer_1.2.5_linux_amd64.zip
+mv packer packer-1.2.5
+'''
+
+        
+    }
+}
+
+     }
+ )

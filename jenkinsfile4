@@ -1,0 +1,15 @@
+import jenkins.model.Jenkins;
+import hudson.model.FreeStyleProject;
+import hudson.tasks.Shell;
+
+def jobParameters = [
+  name:          'MyJob1',
+  description:   'Build name for testing',
+  repository:    'git@ssh://pvagu@nfv-codesurf.cisco.com:29418/cdg.git',
+  branch:        'master',
+  credentialId:  'jenkins-key'
+]
+
+
+job = Jenkins.instance.createProject(FreeStyleProject, 'Job1')
+println(" My Test JOB1 Created")
