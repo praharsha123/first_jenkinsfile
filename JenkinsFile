@@ -3,9 +3,13 @@ pipeline {
     stages{
         stage('Build'){
             steps{
+             
                    git branch: "master", credentialsId: 'GitCredential', url: 'https://github.com/praharsha123/jenkins_hello_world.git' 
+                   dir("${workspace}/maven-project")
+                   {
                    sh "mvn clean package"
                    sh "mvn build"
+                   }
                   }
             }
         stage('deployment'){
