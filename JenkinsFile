@@ -8,11 +8,11 @@ pipeline {
                    dir("${workspace}/maven-project")
                    {
                    sh "mvn clean package"
-                   sh "mvn build"
+                  
                    }
                   }
             }
-        stage('deployment'){
+        stage('Deployment'){
             steps{
                 echo "Deployment goes here"
             }
@@ -24,7 +24,7 @@ pipeline {
                  echo "Install goes here"
                 }              
             }
-            stage('test'){
+            stage('Test'){
             steps {
                 
                  echo "testing goes here"
