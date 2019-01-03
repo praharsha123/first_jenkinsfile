@@ -1,46 +1,32 @@
 pipeline {
     agent any
     stages{
-        stage('init'){
+        stage('Build'){
             steps{
-                sh 'mvn clean package'
-                post{
-                    echo "Now Archiving.."
-                archiveArtifacts artifacts: '**/target/*.war'
-
-                }
+                   git branch: "master", credentialsId: 'GitCredential', url: 'https://github.com/praharsha123/jenkins_hello_world.git' 
+                   sh "mvn clean package"
+                   sh "mvn build"
+                  }
             }
-        }
-
         stage('deployment'){
             steps{
-                build job: 'Deploy-to-staging'
+                echo "Deployment goes here"
             }
         }
 
-        stage('deploy to prod'){
+        stage('Install'){
             steps {
-                timeout(time:5, unit:'Days'){
-                    input message: 'approve production deployment? '
-
+                
+                 echo "Install goes here"
+                }              
+            }
+            stage('test'){
+            steps {
+                
+                 echo "testing goes here"
                 }
-            {
-                build job: 'Deploy to prod'
-            }
-            post {
-                success{
-                    echo 'code deployment to production'
-                }
-
-                failure{
-                    echo 'deployment failed'
-                }
-            }
-
-
-            }
-            }
-        }
-    }
-}
-
+            
+              
+         }
+      
+ }
